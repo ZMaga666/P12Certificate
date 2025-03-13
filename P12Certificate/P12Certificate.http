@@ -1,0 +1,6 @@
+@P12Certificate_HostAddress = http://localhost:5287
+
+GET {{P12Certificate_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
