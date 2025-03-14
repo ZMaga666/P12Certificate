@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Server.Kestrel.Https;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
+using System.Net.Security;
 
 class Program
 {
@@ -29,10 +30,21 @@ class Program
             options.ConfigureHttpsDefaults(httpsOptions =>
             {
                 httpsOptions.ServerCertificate = serverCertificate;
-                httpsOptions.ClientCertificateMode = ClientCertificateMode.RequireCertificate;
+                httpsOptions.ClientCertificateMode = ClientCertificateMode.AllowCertificate; // Change to 'AllowCertificate'
+                httpsOptions.ClientCertificateValidation = (certificate, chain, sslPolicyErrors) =>
+                {
+                    if (certificate == null || sslPolicyErrors != SslPolicyErrors.None)
+                    {
+                        Console.WriteLine("❌ Client certificate is invalid.");
+                        return false;
+                    }
+
+                    Console.WriteLine("✅ Client certificate accepted.");
+                    return true;
+                };
             });
         });
-
+        builder.Services.AddSwaggerGen();
         builder.Services.AddControllers();
         var app = builder.Build();
 
@@ -52,6 +64,9 @@ class Program
             Console.WriteLine($"✅ Gelen İstemci Sertifikası: {clientCert.Subject}");
             await next();
         });
+
+        app.UseSwagger();
+        app.UseSwaggerUI();
 
         app.UseAuthorization();
         app.MapControllers();
