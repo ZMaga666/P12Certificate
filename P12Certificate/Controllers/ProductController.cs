@@ -16,7 +16,8 @@ namespace P12Certificate.Controllers
         };
 
         // GET: api/product
-        [HttpGet]
+
+        [HttpGet("GetAll")]
         public ActionResult<IEnumerable<Product>> GetProducts()
         {
             return Ok(_products);

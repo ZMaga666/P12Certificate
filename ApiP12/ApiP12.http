@@ -1,0 +1,6 @@
+@ApiP12_HostAddress = http://localhost:5048
+
+GET {{ApiP12_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

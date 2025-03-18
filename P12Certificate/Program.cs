@@ -31,24 +31,29 @@ class Program
             {
                 httpsOptions.ServerCertificate = serverCertificate;
                 httpsOptions.ClientCertificateMode = ClientCertificateMode.AllowCertificate; // Change to 'AllowCertificate'
-                httpsOptions.ClientCertificateValidation = (certificate, chain, sslPolicyErrors) =>
-                {
-                    if (certificate == null || sslPolicyErrors != SslPolicyErrors.None)
-                    {
-                        Console.WriteLine("❌ Client certificate is invalid.");
-                        return false;
-                    }
-
-                    Console.WriteLine("✅ Client certificate accepted.");
-                    return true;
-                };
+                httpsOptions.ClientCertificateValidation = (certificate, chain, sslPolicyErrors) => true;
+               
             });
         });
+
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAll",
+                policy =>
+                {
+                    policy.AllowAnyOrigin()   // Allow requests from any domain
+                          .AllowAnyMethod()   // Allow GET, POST, PUT, DELETE, etc.
+                          .AllowAnyHeader();  // Allow all headers
+                });
+        });
+
         builder.Services.AddSwaggerGen();
         builder.Services.AddControllers();
         var app = builder.Build();
 
         app.UseHttpsRedirection();
+
+        app.UseCors("AllowAll");
 
         // Middleware: İstemciden gelen sertifikayı doğrulama
         app.Use(async (context, next) =>
